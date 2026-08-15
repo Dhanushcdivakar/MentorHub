@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0.8
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mentorship-net
+
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mentorship-net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mentorship-net
+
+  authservice:
+    build: ./Backend/authservice
+    container_name: authservice
+    depends_on:
+      - mongodb
+      - redis
+      - rabbitmq
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongodb:27017/auth-service
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=15m
+      - REFRESH_SECRET=${REFRESH_SECRET}
+      - REFRESH_EXPIRES_IN=7d
+      - RABBITMQ_URL=amqp://rabbitmq
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - mentorship-net
+
+  userservice:
+    build: ./Backend/userservice
+    container_name: userservice
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      - PORT=5003
+      - MONGO_URI=mongodb://mongodb:27017/user-service
+      - NODE_ENV=development
+      - RABBITMQ_URL=amqp://rabbitmq
+    networks:
+      - mentorship-net
+
+  booksservice:
+    build: ./Backend/booksservice
+    container_name: booksservice
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - PORT=5005
+      - MONGODB_URI=mongodb://mongodb:27017/mentorhub-books
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CLOUDINARY_FOLDER=mentorhub/resources
+      - MAX_FILE_SIZE=10485760
+      - ALLOWED_FILE_TYPES=application/pdf,image/jpeg,image/png,image/webp,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    networks:
+      - mentorship-net
+
+  mentorshipservice:
+    build: ./Backend/mentorshipservice
+    container_name: mentorshipservice
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      - PORT=5004
+      - MONGO_URI=mongodb://mongodb:27017/mentorship-service
+      - NODE_ENV=development
+      - RABBITMQ_URL=amqp://rabbitmq
+    networks:
+      - mentorship-net
+
+  gatewayservice:
+    build: ./Backend/gatewayservice
+    container_name: gatewayservice
+    depends_on:
+      - authservice
+      - userservice
+      - booksservice
+      - mentorshipservice
+    environment:
+      - PORT=5001
+      - JWT_SECRET=${JWT_SECRET}
+      - SERVICE_AUTH_URL=http://authservice:5002
+      - SERVICE_USERS_URL=http://userservice:5003
+      - SERVICE_MENTORSHIP_URL=http://mentorshipservice:5004
+      - SERVICE_BOOKS_URL=http://booksservice:5005
+    networks:
+      - mentorship-net
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=
+    container_name: frontend
+    depends_on:
+      - gatewayservice
+    networks:
+      - mentorship-net
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - gatewayservice
+    networks:
+      - mentorship-net
+
+networks:
+  mentorship-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data:

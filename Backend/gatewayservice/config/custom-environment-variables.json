@@ -1,0 +1,8 @@
+{
+  "services": {
+    "auth": "SERVICE_AUTH_URL",
+    "users": "SERVICE_USERS_URL",
+    "mentorship": "SERVICE_MENTORSHIP_URL",
+    "books": "SERVICE_BOOKS_URL"
+  }
+}

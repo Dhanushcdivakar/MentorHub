@@ -1,0 +1,35 @@
+# Dependency Directories
+node_modules/
+
+# Environment Files
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Coverage
+coverage/
+
+# Temporary Files
+tmp/
+temp/
+
+# Build
+dist/
+build/
+
+# Uploaded Files (if any local temp storage is used)
+uploads/
+
+# Misc
+*.swp

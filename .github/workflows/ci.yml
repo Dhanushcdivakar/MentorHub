@@ -1,0 +1,86 @@
+name: CI Build & Test Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [authservice, booksservice, mentorshipservice]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: Backend/${{ matrix.service }}/package-lock.json
+
+      - name: Install Service Dependencies
+        run: |
+          cd Backend/${{ matrix.service }}
+          npm ci
+
+      - name: Run Service Tests
+        run: |
+          cd Backend/${{ matrix.service }}
+          PORT=5000 MONGO_URI=mongodb://localhost:27017/test JWT_SECRET=test_secret REFRESH_SECRET=test_refresh MONGODB_URI=mongodb://localhost:27017/test CLOUDINARY_CLOUD_NAME=test CLOUDINARY_API_KEY=test CLOUDINARY_API_SECRET=test ALLOWED_FILE_TYPES=image/jpeg RABBITMQ_URL=amqp://localhost REDIS_URL=redis://localhost:6379 npm run test
+
+  gateway-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: Backend/gatewayservice/package-lock.json
+
+      - name: Install Gateway Dependencies
+        run: |
+          cd Backend/gatewayservice
+          npm ci
+
+      - name: Run Gateway Lint
+        run: |
+          cd Backend/gatewayservice
+          npm run lint
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run Frontend Lint
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build

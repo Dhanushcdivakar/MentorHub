@@ -1,0 +1,9 @@
+{
+  "port": 5001,
+  "services": {
+    "auth": "http://localhost:5002",
+    "users": "http://localhost:5003",
+    "mentorship": "http://localhost:5004",
+    "books": "http://localhost:5005"
+  }
+}
