@@ -19,7 +19,6 @@ app.use(
       if (!origin) return callback(null, true);
       const normalizedOrigin = origin.replace(/\/$/, '');
       const isAllowed = allowedOrigins.includes(normalizedOrigin) || 
-                        normalizedOrigin.endsWith('.vercel.app') || 
                         normalizedOrigin.startsWith('http://localhost:');
       if (isAllowed) {
         callback(null, true);
