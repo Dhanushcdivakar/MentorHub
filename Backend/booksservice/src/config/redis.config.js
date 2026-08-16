@@ -3,14 +3,21 @@ import Redis from "ioredis";
 import { env } from "./env.config.js";
 import logger from "./logger.config.js";
 
-const redis = new Redis({
-  host: env.redisHost,
-  port: env.redisPort,
-  password: env.redisPassword || undefined,
+const isRemote = env.redisUrl || (env.redisHost && env.redisHost !== "127.0.0.1" && env.redisHost !== "localhost");
 
-  maxRetriesPerRequest: null,
-  enableReadyCheck: true,
-});
+const redis = env.redisUrl
+  ? new Redis(env.redisUrl, {
+      maxRetriesPerRequest: null,
+      enableReadyCheck: true,
+    })
+  : new Redis({
+      host: env.redisHost,
+      port: env.redisPort,
+      password: env.redisPassword || undefined,
+      tls: isRemote ? {} : undefined,
+      maxRetriesPerRequest: null,
+      enableReadyCheck: true,
+    });
 
 redis.on("connect", () => {
   logger.info("Redis Connected");
