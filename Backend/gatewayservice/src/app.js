@@ -12,6 +12,7 @@ import { AppError } from './utils/AppError.js';
 import { globalRateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 const app = express();
+app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5173',
