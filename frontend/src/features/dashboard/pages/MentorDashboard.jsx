@@ -55,6 +55,9 @@ export default function MentorDashboard() {
   const { data: sessionsResponse, isLoading: isSessionsLoading } = useQuery({
     queryKey: ["mentorSessions"],
     queryFn: getMentorSessionsApi,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   const stats = dashResponse?.data || {

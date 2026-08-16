@@ -49,6 +49,9 @@ export default function StudentSessions() {
   const { data: response, isLoading, isError, error } = useQuery({
     queryKey: ["studentSessions"],
     queryFn: getStudentSessionsApi,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   const sessions = response?.data || [];

@@ -55,6 +55,9 @@ export default function MentorSessions() {
   const { data: response, isLoading, isError, error } = useQuery({
     queryKey: ["mentorSessions"],
     queryFn: getMentorSessionsApi,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   const { data: detailResponse, isLoading: isDetailLoading } = useQuery({

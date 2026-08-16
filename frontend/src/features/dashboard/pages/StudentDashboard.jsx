@@ -21,6 +21,9 @@ export default function StudentDashboard() {
   const { data: sessionsResponse, isLoading: isSessionsLoading } = useQuery({
     queryKey: ["studentSessions"],
     queryFn: getStudentSessionsApi,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   const stats = dashResponse?.data || {
