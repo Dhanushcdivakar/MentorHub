@@ -13,15 +13,25 @@ import { globalRateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 const app = express();
 
-//app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   process.env.FRONTEND_URL
-].filter(Boolean);
+].map(url => url ? url.replace(/\/$/, '') : '').filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      const isAllowed = allowedOrigins.includes(normalizedOrigin) || 
+                        normalizedOrigin.endsWith('.vercel.app') || 
+                        normalizedOrigin.startsWith('http://localhost:');
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(null, false); // Don't throw error, just don't set header
+      }
+    },
     credentials: true,
   }),
 );
