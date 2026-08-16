@@ -33,6 +33,14 @@ app.use(express.json());
 
 app.use(requestLogger);
 
+app.get("/health", (req, res) => {
+    res.status(200).json({ success: true, service: "auth-service" });
+});
+
+app.get("/", (req, res) => {
+    res.status(200).json({ success: true, message: "Auth Service is online" });
+});
+
 app.use("/api/auth", authRoutes);
 
 app.use(globalErrorHandler);

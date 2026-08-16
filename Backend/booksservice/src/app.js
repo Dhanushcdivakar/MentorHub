@@ -58,6 +58,14 @@ app.use(requestLogger);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/health", healthRoutes);
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Books Service is online",
+  });
+});
+
 /**
  * Health Check
  */
