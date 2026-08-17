@@ -11,7 +11,8 @@ import {
   ArrowRight,
   ClipboardList,
   Compass,
-  FileText
+  FileText,
+  ChevronLeft
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { 
@@ -156,11 +157,11 @@ export default function AIMentor() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4.5rem)] rounded-2xl overflow-hidden bg-background border border-border/40 shadow-xl max-w-7xl mx-auto my-4">
+    <div className="flex h-[calc(100vh-4.5rem)] md:rounded-2xl overflow-hidden bg-background md:border md:border-border/40 shadow-xl max-w-7xl mx-auto md:my-4 w-full">
       {/* ==========================================
           SIDEBAR: CHAT HISTORY LIST
       ========================================== */}
-      <aside className="w-80 bg-card border-r border-border/40 flex flex-col shrink-0">
+      <aside className={`w-full md:w-80 bg-card md:border-r border-border/40 flex flex-col shrink-0 ${activeSessionId ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b border-border/40">
           <button
             onClick={() => handleStartNewChat()}
@@ -225,11 +226,20 @@ export default function AIMentor() {
       {/* ==========================================
           MAIN AREA: CHAT INTERFACE
       ========================================== */}
-      <main className="flex-1 flex flex-col bg-card/10 backdrop-blur-md relative overflow-hidden">
+      <main className={`flex-grow md:flex-1 flex flex-col bg-card/10 backdrop-blur-md relative overflow-hidden ${!activeSessionId ? "hidden md:flex" : "flex"}`}>
         {/* Header */}
         {activeSession && (
-          <div className="h-16 border-b border-border/40 px-6 flex items-center justify-between bg-card shrink-0 shadow-sm z-10">
+          <div className="h-16 border-b border-border/40 px-4 md:px-6 flex items-center justify-between bg-card shrink-0 shadow-sm z-10">
             <div className="flex items-center gap-3">
+              {/* Back Button for Mobile Viewport */}
+              <button
+                onClick={() => setActiveSessionId(null)}
+                className="md:hidden p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors mr-1"
+                title="Back to History"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
               <div className="bg-primary/10 p-2 rounded-xl text-primary">
                 <Sparkles className="h-5 w-5" />
               </div>
@@ -245,7 +255,7 @@ export default function AIMentor() {
         )}
 
         {/* Message Log */}
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+        <div className="flex-grow overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
           {!activeSessionId ? (
             /* ==========================================
                 WELCOME / STARTER SCREEN
